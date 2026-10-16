@@ -1,0 +1,5 @@
+c contradiction forced by unit clauses
+p cnf 2 3
+1 0
+-1 2 0
+-2 0

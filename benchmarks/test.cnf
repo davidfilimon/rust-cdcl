@@ -1,0 +1,5 @@
+c exemplu
+c f = (-x1 v -x2 c x3) ^ (-x3 v x4)
+p cnf 4 2
+-1 -2 3 0
+-3 4 0

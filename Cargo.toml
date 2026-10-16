@@ -1,0 +1,13 @@
+[package]
+name = "cdcl-rust"
+version = "0.2.0"
+edition = "2021"
+description = "Educational CDCL SAT solver with DIMACS, 2WL, 1-UIP, VSIDS and benchmarks"
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "abort"

@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DPLL(T) · Laborator interactiv</title>
+<style>
+:root{--paper:#fffdf8;--bg:#edf0ed;--ink:#20272a;--muted:#637074;--line:#d8dfdc;--green:#b8e88e;--green-ink:#1d491f;--orange:#ffd2ad;--orange-ink:#693b1e;--blue:#376c9b;--red:#be3444;--amber:#9b5b12;--panel:#fff;--shadow:0 12px 40px #14272512}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,textarea,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:default}button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid #64a4d3;outline-offset:2px}h1,h2,h3,p{margin:0}small{color:var(--muted)}.mono,textarea,.count,.event-id{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.top{max-width:1680px;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:22px 28px 15px;gap:15px}.brand{display:flex;align-items:center;gap:12px}.logo{background:#234e3a;color:#e9fce6;border-radius:9px;padding:9px 12px;font-size:18px;font-weight:800}.brand h1{font-size:19px;letter-spacing:-.04em}.brand p{font-size:12px;color:var(--muted)}.top-right{display:flex;align-items:center;gap:12px}.source-link{font-size:12px;color:#305c82;text-decoration:none}.source-link:hover{text-decoration:underline}.status{background:#f8faf9;border:1px solid #cbd5d0;border-radius:999px;font-size:11px;font-weight:800;padding:6px 12px;color:#345a52;letter-spacing:.04em}.status.sat{background:#e4f7da;color:#225422}.status.unsat{background:#ffe5e6;color:#992638}.status.unknown{background:#fff3d9;color:#8a580b}
+.page{max-width:1680px;margin:auto;padding:0 28px 60px;display:grid;grid-template-columns:325px minmax(0,1fr);gap:17px;align-items:start}.sidebar{display:flex;flex-direction:column;gap:15px}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 2px 12px #17282005}.side-card{padding:17px}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#3f5356;margin-bottom:12px}.mini{background:#edf4ed;border:1px solid #d9e6d9;border-radius:6px;color:#37664b;padding:3px 8px;font-size:10px}.examples{display:grid;grid-template-columns:1fr 1fr;gap:7px}.example{padding:9px 10px;border:1px solid #dce3dd;background:#f7faf7;border-radius:7px;text-align:left;font-size:12px;color:#41524b}.example:hover{border-color:#7c9e89}.example.selected{background:#e6f5dc;border-color:#70a066;color:#1e4a27;font-weight:700}.example.featured{grid-column:span 2}.source-editor{width:100%;height:290px;resize:vertical;background:#172424;color:#d8f0e0;border:1px solid #2d4b46;border-radius:8px;font-size:12px;padding:13px 11px;line-height:1.65;tab-size:2}.editor-tools{display:flex;gap:7px;margin-top:9px}.button{border:1px solid #bfcfca;background:#f9fbfa;color:#24403b;border-radius:7px;padding:9px 12px;font-size:12px;font-weight:700;white-space:nowrap}.button:hover:not(:disabled){background:#eaf2ed}.button.primary{background:#285d43;border-color:#285d43;color:white}.button.primary:hover:not(:disabled){background:#1d4d36}.button.next{background:#285d43;color:white;border-color:#285d43;font-size:14px;padding:10px 20px}.button.action{background:#eaf4de;color:#2c5b35;border-color:#bdd2af}.button.ghost{background:transparent}.button.wide{width:100%;margin-top:12px}.subhelp{color:var(--muted);font-size:11px;margin-top:9px;line-height:1.55}.error{white-space:pre-wrap;color:#ae3142;font-size:12px;margin-top:9px}.key{font:11px ui-monospace,monospace;border:1px solid #cbd6d0;background:#f3f6f4;border-radius:4px;padding:2px 5px}
+.stage{min-width:0}.slide{background:var(--paper);border:1px solid #d6dbd5;border-radius:13px;min-height:670px;box-shadow:var(--shadow);padding:28px 30px 25px;display:flex;flex-direction:column}.slide-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:19px}.slide-kicker{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#678279;font-weight:700}.slide-counter{font:12px ui-monospace,monospace;color:#476780}.slide-main{display:grid;grid-template-columns:minmax(0,1fr) 205px;gap:26px;flex:1;min-height:0}.slide-content{min-width:0}.slide-title{font-size:clamp(29px,3vw,46px);letter-spacing:-.055em;line-height:1.1;font-weight:500;margin-bottom:18px}.formula-label{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#82918d;font-weight:750;margin-bottom:8px}.formula{display:flex;gap:10px 6px;flex-wrap:wrap;align-content:flex-start;font-size:clamp(17px,1.7vw,25px);line-height:1.8;font-family:ui-sans-serif,system-ui,sans-serif;font-weight:550;max-height:250px;overflow:auto;padding:5px 3px 12px}.formula-clause{white-space:normal;display:inline-flex;align-items:baseline;flex-wrap:wrap;gap:3px;border-radius:6px;padding:0 3px;max-width:100%;border:1px solid transparent}.formula-clause.focus{border-color:#c08b39;background:#fff5df}.formula-clause.lemma{outline:2px solid #c8a76b;outline-offset:2px}.lit{padding:0 4px;line-height:1.4;border-radius:2px;white-space:nowrap}.lit.truth{background:var(--green);color:var(--green-ink)}.lit.false{background:var(--orange);color:var(--orange-ink)}.lit.open{background:#edf0ef;color:#52605b}.join{color:#73837b;margin:0 2px;font-size:.85em}.formula-clause .par{color:#343a38}.formula-atom{font-size:10px;color:#527467;font-weight:800;align-self:flex-start;margin-right:2px}.formula-new{font-size:10px;font-weight:800;color:#8b611d;vertical-align:super}.slide-body{padding-top:27px}.phase{font-size:14px;font-weight:650;color:#50655a;margin-bottom:10px}.current-action{background:#f5f8f2;border-left:4px solid #709d6d;padding:12px 15px;margin:12px 0 10px;max-width:710px;font-size:15px}.current-action.conflict{background:#fff3ef;border-color:#cf7774}.current-action.lemma{background:#fef7e5;border-color:#d6a352}.step-description{color:#40534d;font-size:13px;line-height:1.7;margin-top:6px;overflow-wrap:anywhere}.recent-list{margin:15px 0 0;padding:0 0 0 22px;max-height:160px;overflow:auto;color:#4d5855}.recent-list li{padding:4px 0;font-size:12px}.recent-list li:last-child{font-weight:700;color:#224535}.result-message{font-size:20px;font-weight:800;margin-top:14px}.result-message.unsat{color:var(--red)}.result-message.sat{color:#287237}.context{border:1.5px solid #5c83a8;display:flex;flex-direction:column;min-height:430px;align-self:stretch;background:#fffcf7}.context-title{border-bottom:1.5px solid #5c83a8;padding:9px;text-align:center;font-size:22px;letter-spacing:-.04em}.context-sub{font-size:10px;text-align:center;letter-spacing:.06em;text-transform:uppercase;color:#6b8291;padding:9px 4px 2px}.context-items{display:flex;flex-direction:column;gap:11px;align-items:center;padding:15px 7px;overflow:auto}.context-lit{font-size:19px;line-height:1.3;text-align:center;overflow-wrap:anywhere;max-width:100%;color:#26323b}.context-lit.new{animation:appear .25s ease}.context-lit .decision-mark{font-size:11px;color:#327bb1;vertical-align:super;font-weight:800;margin-left:3px}.context-empty{color:#7d929d;font-size:12px;text-align:center;margin:20px 8px}.context-foot{border-top:1px solid #d1dbe4;padding:9px;text-align:center;color:#607b8f;font:11px ui-monospace,monospace;margin-top:auto}.slide-footer{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #e3e6e1;margin-top:20px;padding-top:13px;color:#6b7a74;font-size:11px}
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:15px 0 11px;flex-wrap:wrap}.controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.step-progress{font:12px ui-monospace,monospace;color:#4b6560}.speed{display:flex;gap:7px;align-items:center;font-size:11px;color:#526c62}.speed select{border:1px solid #bfcfca;background:#fff;border-radius:6px;padding:7px}.slider{width:100%;accent-color:#32664a;cursor:pointer;margin:0 0 12px}.slider:disabled{cursor:default}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}.metric{padding:12px 13px;background:#fff;border:1px solid var(--line);border-radius:9px}.metric strong{display:block;font-size:19px;font-variant-numeric:tabular-nums}.metric span{color:var(--muted);font-size:11px}.under-panels{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:13px}.inspect{padding:16px;min-width:0}.inspect h3{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#536b60;margin-bottom:9px}.learned-list,.timeline{display:flex;flex-direction:column;gap:6px;max-height:264px;overflow:auto}.learned-item{border:1px solid #e5d8b9;background:#fffbef;padding:10px;border-radius:7px;font-size:12px}.learned-item strong{display:inline-block;color:#91601b;font-size:10px;margin-bottom:4px}.learned-item .why{display:block;font-size:11px;color:#7d7560;line-height:1.5;margin-top:4px}.event{display:grid;grid-template-columns:34px 88px minmax(0,1fr);gap:8px;text-align:left;align-items:center;padding:8px;background:#f5f7f5;border:1px solid transparent;color:#475a53;border-radius:7px;font-size:11px;min-width:0}.event:hover{border-color:#a6b6ac}.event.active{border-color:#588c69;background:#e6f3e5;color:#1e4f2c}.event-id{color:#87948b}.event-kind{font-size:10px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.event-desc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.warning{color:#9a6520;font-size:12px;padding:9px}.help-note{padding:13px 2px;font-size:11px;color:#62746d}.model{font:12px/1.6 ui-monospace,monospace;margin-top:10px;color:#285d43;overflow-wrap:anywhere}.empty{color:#8c9891;font-size:12px}.highlight-lemma{background:#fdf0c9;color:#704c15;border-radius:3px;padding:1px 3px}.fullscreen .page{grid-template-columns:1fr}.fullscreen .sidebar{display:none}.fullscreen .slide{min-height:700px}.filter{display:flex;gap:8px;align-items:center}
+@keyframes appear{from{opacity:.45;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1200px){.page{grid-template-columns:275px minmax(0,1fr)}.slide{padding:22px}.slide-main{grid-template-columns:minmax(0,1fr) 165px;gap:15px}.context-lit{font-size:16px}.formula{font-size:20px}}
+@media(max-width:950px){.page{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr}.sidebar .side-card:first-child{grid-column:span 2}.source-editor{height:210px}.slide{min-height:580px}}
+@media(max-width:600px){.top{padding:14px}.top-right .source-link{display:none}.page{padding:0 10px 40px;gap:10px}.sidebar{display:flex}.slide{padding:15px;min-height:620px}.slide-main{grid-template-columns:1fr;gap:10px}.context{min-height:120px;max-height:160px}.context-items{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:12px;padding:9px}.context-title{font-size:16px;padding:6px}.context-sub{display:none}.context-lit{font-size:15px}.slide-title{font-size:30px}.formula{font-size:18px;max-height:175px}.slide-body{padding-top:12px}.recent-list{max-height:100px}.under-panels{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){.context-lit.new{animation:none}}
+
+/* DPLL(T) manual explorer: green = theory-consistent branch, red = conflict. */
+.manual-panel{margin:16px 0 8px;padding:15px;border:1px solid #bcd3c1;background:#f3f8f1;border-radius:10px;box-shadow:0 2px 14px #0e35240b}
+.manual-panel[hidden]{display:none}.manual-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.manual-panel h3{font-size:14px;letter-spacing:-.015em}.manual-sub{font-size:11px;color:#597267;margin:4px 0 11px}
+.manual-choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:9px;max-height:260px;overflow:auto}
+.manual-choice{border:1px solid #cad8cf;background:white;border-radius:7px;padding:9px;min-width:0}
+.manual-choice h4{margin:0 0 7px;font-size:13px;display:flex;justify-content:space-between;gap:8px}
+.manual-choice .expr{display:block;font:11px ui-monospace,monospace;color:#667a71;overflow-wrap:anywhere;margin-bottom:7px}
+.manual-opts{display:flex;gap:6px}.pick{border-radius:6px;padding:7px 9px;font:700 12px ui-monospace,monospace;flex:1;cursor:pointer;border:1px solid transparent}
+.pick.good{background:#dff3d4;color:#275c28;border-color:#83b77f}.pick.good:hover{background:#c4e7b7}
+.pick.bad{background:#ffe5de;color:#952f2e;border-color:#e3a4a0}.pick.bad:hover{background:#ffcbc6}
+.pick.unknown{background:#fff2d1;color:#865f19;border-color:#ddc37a}
+.manual-fixed{font-size:11px;color:#2d6644;background:#e6f4e4;border-radius:5px;padding:7px 9px;font-weight:700}
+.manual-feedback{margin:12px 0 4px;border-radius:7px;padding:10px 12px;font-size:12px;background:#ecf3ea;border-left:4px solid #6b9b6e}
+.manual-feedback.bad{background:#ffefeb;border-color:#d87375;color:#893330}.manual-feedback.good{background:#e0f4db;border-color:#6b9c64;color:#215b2c}
+.manual-feedback code{font-weight:750}.manual-footer{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.manual-tip{font-size:11px;color:#6e796f}.manual-learn{background:#ffebbd;border:1px solid #d9ae51;color:#65480e;font-weight:750;border-radius:7px;padding:9px 12px}
+.manual-learn[hidden]{display:none}.button.manual-entry{background:#ecf4ff;color:#225279;border-color:#bed2e5}
+.mode-indicator{font-size:10px;padding:3px 7px;border-radius:5px;background:#e7f0e6;color:#35654a;font-weight:700}
+@media(max-width:740px){.manual-choice-grid{grid-template-columns:1fr 1fr}.page{grid-template-columns:1fr}.slide{padding:18px}.slide-main{grid-template-columns:minmax(0,1fr) 140px;gap:10px}.context-title{font-size:16px}.context-lit{font-size:12px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brand"><span class="logo">∧T</span><div><h1>CDCL(T) · Visual Solver</h1><p>Explorator interactiv inspirat de DPLL(T) · Andrew Reynolds, VTSA 2017</p></div></div><div class="top-right"><a class="source-link" href="https://conferences.mpi-inf.mpg.de/rg1/vtsa17/slides/reynolds-vtsa-part1.pdf" target="_blank" rel="noopener noreferrer">Vezi slide-urile 50–67 ↗</a><span id="status" class="status">NEPORNIT</span></div></header>
+<main class="page">
+<aside class="sidebar">
+  <section class="card side-card"><div class="section-heading">01 / Exemple <span class="mini">SMT + SAT</span></div><div id="examples" class="examples"></div><p class="subhelp">Primele exemple reproduc formulele din curs. Ultimele folosesc CDCL clasic sau DT.</p></section>
+  <section class="card side-card"><div class="section-heading">02 / Formula de intrare <span class="mini">editabilă</span></div><textarea id="source" class="source-editor" spellcheck="false" aria-label="Formula SMT sau DIMACS CNF"></textarea><div class="editor-tools"><button class="button" id="upload">Importă fișier</button><input type="file" id="file" accept=".smt,.cnf,.txt" hidden><button class="button" id="clear">Golește</button></div><button id="run" class="button primary wide">▶ Pregătește execuția automată</button><button id="manual-run" class="button manual-entry wide">◉ Eu aleg deciziile (verde / roșu)</button><p id="error" class="error" role="alert"></p><p class="subhelp">Automat: urmărești CDCL(T) cu Next. Manual: alegi tu a/b/c/d ca TRUE sau FALSE, iar Rust verifică ramura.</p></section>
+  <section class="card side-card"><div class="section-heading">03 / Clauze învățate <span id="learn-count" class="mini">0</span></div><div id="learned" class="learned-list"><span class="empty">Vor apărea când solverul învață clauze.</span></div><button class="button action wide" id="add-lemmas" disabled>+ Adaugă clauzele în editor</button><button class="button ghost wide" id="copy-lemmas" disabled>Copiază clauzele învățate</button><p class="subhelp">Lemele sunt construite din nuclee inconsistente; nu sunt introduse arbitrar.</p></section>
+</aside>
+<section class="stage">
+  <div class="slide" aria-label="Prezentare interactivă a algoritmului">
+    <div class="slide-bar"><span class="slide-kicker">DPLL(T) / CDCL(T) · Verificare formală</span><span id="slide-step" class="slide-counter">Pasul 0 / 0</span></div>
+    <div class="slide-main"><div class="slide-content"><h2 id="slide-title" class="slide-title">DPLL(T)</h2><p class="formula-label">Formula curentă · F ∧ clauzele învățate</p><div id="formula" class="formula" aria-live="polite"></div>
+      <section id="manual-panel" class="manual-panel" hidden><div class="manual-head"><h3>◉ Alege următoarea decizie</h3><span class="mode-indicator">DPLL(T) manual · Rust</span></div><p class="manual-sub">Verde: contextul rămâne compatibil. Roșu: conflict demonstrat; poți extrage lema fără a accepta decizia.</p><div id="manual-choices" class="manual-choice-grid"></div><div id="manual-feedback" class="manual-feedback" role="status">Atribuirile unitare apar automat în Context.</div><div class="manual-footer"><button id="manual-learn" class="manual-learn" hidden>+ Învață lema de conflict</button><button id="manual-reset" class="button ghost">↺ Reia deciziile</button><span class="manual-tip" id="manual-hint">Alegi din starea cea mai recentă; Next/Previous revăd pașii generați.</span></div></section>
+      <div class="slide-body"><p class="phase" id="phase">• Selectează un exemplu și pregătește execuția</p><div id="current-action" class="current-action">Apasă <b>Pregătește execuția</b>, apoi <b>Next →</b> ca în prezentarea de la curs.</div><p id="step-explanation" class="step-description">Clauzele satisfăcute devin verzi; cele false, portocalii. În dreapta se actualizează contextul.</p><ol id="recent" class="recent-list"></ol><div id="result-message" class="result-message"></div><div id="model" class="model"></div></div>
+    </div><aside class="context"><h3 class="context-title">Context</h3><div class="context-sub">Atribuiri / nivel decizie</div><div id="context-items" class="context-items"><span class="context-empty">Context gol</span></div><div id="context-foot" class="context-foot">Level 0 · 0 literals</div></aside></div>
+    <footer class="slide-footer"><span id="slide-type">Nicio execuție</span><span id="slide-source">Solver: Rust · domenii LIA finite</span></footer>
+  </div>
+  <div class="toolbar"><div class="controls"><button id="first" class="button" disabled title="Primul pas">|←</button><button id="prev" class="button" disabled>← Previous</button><button id="next" class="button next" disabled>Next →</button><button id="last" class="button" disabled title="Ultimul pas">→|</button><button id="play" class="button" disabled>▷ Auto</button></div><div class="filter"><label class="speed" for="speed">Viteză <select id="speed"><option value="1800">lentă</option><option value="1000" selected>normală</option><option value="450">rapidă</option></select></label><button id="focus" class="button" title="Ascunde editorul pentru prezentare">⛶ Prezentare</button></div></div>
+  <input type="range" min="0" max="0" value="0" id="scrub" class="slider" disabled aria-label="Salt la un pas din execuție">
+  <div class="metrics"><div class="metric"><strong id="m-step">0 / 0</strong><span>Pași</span></div><div class="metric"><strong id="m-decision">0</strong><span>Decizii CDCL</span></div><div class="metric"><strong id="m-conflict">0</strong><span>Conflicte SAT</span></div><div class="metric"><strong id="m-iteration">0</strong><span>Iterație SMT</span></div></div>
+  <div class="under-panels"><section class="card inspect"><h3>Clauza activă și explicația învățării</h3><div id="active-clause" class="mono">—</div><p class="subhelp" id="clause-explain">Selectează un pas pentru a vedea clauza implicată.</p><div id="learning-proof" class="step-description"></div></section><section class="card inspect"><h3>Istoric · mergi la orice pas</h3><div id="timeline" class="timeline"></div></section></div>
+  <p class="warning" id="warning" hidden></p><p class="help-note"><span class="key">←</span> / <span class="key">→</span> pentru pași, <span class="key">Ctrl/⌘ + Enter</span> pentru rulare. În modul manual, apeși pe valori TRUE/FALSE și poți folosi Next pentru a revedea fiecare propagare sau conflict. Limitele pentru variabilele întregi fac parte din semantica acestei implementări educaționale.</p>
+</section>
+</main>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const samples = [
+ {name:'VTSA · Slide 50 (UNSAT)',featured:true,source:`# Reynolds, DPLL(T), slides 35-52
+# (x+1>0 OR x+y>0) AND (x<0 OR x+y>4) AND NOT(x+y>0)
+var x -10 10
+var y -10 10
+atom a: x+1 > 0
+atom b: x+y > 0
+atom c: x < 0
+atom d: x+y > 4
+clause a b
+clause c d
+clause !b`},
+ {name:'VTSA · Exercițiu 54–67',featured:true,source:`# (x>y OR x>z) AND (x+1<y OR NOT(x>y)) AND (x>y OR z>y)
+var x -8 8
+var y -8 8
+var z -8 8
+atom a: x > y
+atom b: x > z
+atom c: x+1 < y
+atom d: z > y
+clause a b
+clause c !a
+clause a d`},
+ {name:'Decizii · Verde / Roșu',featured:true,source:`# După b=true, c=true este conflict (x<=3 și x>=4)
+var x 0 5
+atom a: x >= 2
+atom b: x <= 3
+atom c: x >= 4
+clause a b`},
+ {name:'LIA · SAT',source:`var x 0 8
+var y 0 8
+atom budget: 2*x + 3*y <= 16
+atom min: x + y >= 5
+atom gap: x - y <= 3
+clause budget
+clause min
+clause gap`},
+ {name:'LIA · UNSAT',source:`var x 0 10
+atom low: 2*x <= 3
+atom high: x >= 3
+clause low
+clause high`},
+ {name:'DT · SAT',source:`var x -8 8
+var y -8 8
+atom a: x - y <= 2
+atom b: y - x <= 1
+clause a
+clause b`},
+ {name:'DT · UNSAT',source:`var x -8 8
+var y -8 8
+atom a: x - y <= -1
+atom b: y - x <= -1
+clause a
+clause b`},
+ {name:'CDCL · UNSAT',source:`c XOR contradiction
+p cnf 2 4
+1 2 0
+-1 2 0
+1 -2 0
+-1 -2 0`},
+ {name:'CDCL · SAT',source:`p cnf 3 3
+1 2 0
+-1 3 0
+-2 -3 0`}
+];
+const labels={manual_start:'Context inițial',manual_decision:'Decizia ta',manual_reject:'Ramură respinsă',start:'Start',iteration:'Iterație SMT',heuristic:'VSIDS',reduce:'Reducere clauze',decision:'Decizie',propagation:'Propagare',bcp:'Unit propagation',conflict:'Conflict',analysis:'Analiză First-UIP',resolution:'Rezoluție',learn:'Clauză CDCL',backjump:'Backjump',restart:'Restart',boolean_sat:'Model boolean',theory_check:'Verificare LIA/DT',atom_check:'Verificare atom',theory_conflict:'Conflict de teorie',core_minimize:'Nucleu minimal',theory_lemma:'Lemă de teorie',theory_sat:'Model întreg',sat:'SAT',unsat:'UNSAT',unknown:'UNKNOWN'};
+let result=null,position=0,timer=null,requestId=0;
+let manualMode=false,manualChoices=[],manualLemmas=[],manualPending=null,manualData=null,manualBusy=false,manualLog=[];
+function node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
+function sym(l,expr=true){const atom=result?.definitions?.[Math.abs(l)-1];const name=atom?(expr&&result.mode==='SMT'?atom.expression:atom.name):('x'+Math.abs(l));return l<0?(expr&&result?.mode==='SMT'?'¬('+name+')':'¬'+name):name;}
+function formatClause(lits,expr=true){return lits.length?'('+lits.map(l=>sym(l,expr)).join(' ∨ ')+')':'□ (clauză vidă)';}
+function snapshot(ev){const state=new Map();(ev.trail||[]).forEach((l,i)=>state.set(Math.abs(l),{value:l>0,level:ev.levels?.[i]??0}));return state;}
+function clauseState(lits,st){if(!lits.length)return'conflict';let free=0;for(const l of lits){const v=st.get(Math.abs(l));if(!v)free++;else if(v.value===(l>0))return'sat';}return free===0?'conflict':free===1?'unit':'open';}
+function arraysEqual(a,b){return a.length===b.length&&a.every((x,i)=>x===b[i]);}
+function learnedAt(pos){return result?.events?.slice(0,pos+1).map((e,i)=>({kind:e.kind,clause:e.clause,index:i,iteration:e.iteration})).filter(e=>(e.kind==='learn'||e.kind==='theory_lemma')&&Array.isArray(e.clause))||[];}
+function lemmaProof(lits){return 'Nucleul incompatibil: '+lits.map(l=>sym(-l,false)).join(' ∧ ')+'. Prin negarea conjuncției rezultă '+formatClause(lits,false)+'.';}
+function choose(i){$('source').value=samples[i].source;document.querySelectorAll('.example').forEach((b,j)=>b.classList.toggle('selected',i===j));invalidate();}
+for(const [i,s] of samples.entries()){const b=node('button','example'+(s.featured?' featured':''),s.name);b.type='button';b.onclick=()=>choose(i);$('examples').append(b);}
+function stop(){if(timer){clearInterval(timer);timer=null;}$('play').textContent='▷ Auto';}
+function controls(){const n=result?.events?.length||0;for(const id of ['first','prev'])$(id).disabled=!n||position<=0;for(const id of ['next','last'])$(id).disabled=!n||position>=n-1;$('play').disabled=n<2;$('scrub').disabled=n<2;$('scrub').max=Math.max(0,n-1);$('scrub').value=position;const count=learnedAt(position).length;$('add-lemmas').disabled=!count;$('copy-lemmas').disabled=!count;}
+function invalidate(){manualMode=false;manualPending=null;manualData=null;manualChoices=[];manualLemmas=[];$('manual-panel').hidden=true;requestId++;stop();result=null;position=0;$('error').textContent='';$('status').textContent='NEPORNIT';$('status').className='status';$('slide-step').textContent='Pasul 0 / 0';$('slide-title').textContent='DPLL(T)';$('phase').textContent='• Selectează un exemplu și pregătește execuția';$('current-action').textContent='Apasă Pregătește execuția, apoi Next → ca în prezentarea de la curs.';$('step-explanation').textContent='Clauzele sunt colorate după atribuirea curentă.';$('formula').replaceChildren();$('context-items').replaceChildren(node('span','context-empty','Context gol'));$('context-foot').textContent='Level 0 · 0 literals';$('recent').replaceChildren();$('result-message').textContent='';$('model').textContent='';$('slide-type').textContent='Nicio execuție';$('slide-source').textContent='Solver: Rust · domenii LIA finite';$('active-clause').textContent='—';$('learning-proof').textContent='';$('clause-explain').textContent='Selectează un pas pentru a vedea clauza implicată.';$('timeline').replaceChildren();$('learned').replaceChildren(node('span','empty','Vor apărea când solverul învață clauze.'));$('learn-count').textContent='0';for(const id of ['m-step','m-decision','m-conflict','m-iteration'])$(id).textContent='0';$('warning').hidden=true;controls();}
+function renderFormula(ev,st){const root=$('formula');root.replaceChildren();const learned=learnedAt(position);const clauses=result.clauses.map((l,i)=>({clause:l,kind:'original',index:i})).concat(learned);const focus=ev.clause||[];
+ clauses.forEach((item,i)=>{if(i)root.append(node('span','join','∧'));const focused=focus.length&&arraysEqual(focus,item.clause);const box=node('span','formula-clause'+(focused?' focus':'')+(item.kind!=='original'?' lemma':''));box.title=(item.kind==='original'?'Clauză inițială':'Clauză învățată')+' · '+clauseState(item.clause,st);box.append(node('span','par','('));item.clause.forEach((l,j)=>{if(j)box.append(node('span','join','∨'));const a=st.get(Math.abs(l));box.append(node('span','lit '+(!a?'open':a.value===(l>0)?'truth':'false'),sym(l)));if(result.mode==='SMT'){box.append(node('sup','formula-atom',(l<0?'¬':'')+(result.definitions[Math.abs(l)-1]?.name||'?')));}});box.append(node('span','par',')'));if(item.kind!=='original'){box.append(node('sup','formula-new',item.kind==='theory_lemma'?'T':'L'));}root.append(box);});if(!clauses.length)root.append(node('span','empty','Fără clauze'));}
+function renderContext(ev){const root=$('context-items');root.replaceChildren();const arr=ev.trail||[];const decisions=new Set(result.events.slice(0,position+1).filter(e=>['decision','manual_decision'].includes(e.kind)&&e.iteration===ev.iteration&&e.trail?.length).map(e=>e.trail[e.trail.length-1]));if(!arr.length){root.append(node('span','context-empty','Context gol'));}else{arr.forEach((l,i)=>{const c=node('div','context-lit',result?.mode==='SMT'?sym(l,false)+'  ·  '+sym(l):sym(l));const k=ev.levels?.[i]??0;if(k>0&&decisions.has(l))c.append(node('sup','decision-mark','d'+k));root.append(c);});}$('context-foot').textContent=`Level ${ev.level??0} · ${arr.length} literals`; }
+function renderLearned(){const items=learnedAt(position),root=$('learned');root.replaceChildren();$('learn-count').textContent=String(items.length);if(!items.length){root.append(node('span','empty','Încă nu s-a învățat nicio clauză.'));return;}items.forEach((it,i)=>{const c=node('div','learned-item');c.append(node('strong','',it.kind==='theory_lemma'?'T'+(i+1)+' · LIA / DT':'L'+(i+1)+' · CDCL'));c.append(node('div','mono',formatClause(it.clause,false))); if(result?.mode==='SMT')c.append(node('div','subhelp',formatClause(it.clause,true)));c.append(node('span','why',it.kind==='theory_lemma'?'Teorie: '+it.clause.map(l=>sym(-l,false)).join(' ∧ ')+' este inconsistent.':'Deducție prin analiză de conflict (First-UIP).'));root.append(c);});}
+function renderTimeline(){const root=$('timeline');root.replaceChildren();const all=result.events,from=Math.max(0,Math.min(position-7,Math.max(0,all.length-16))),to=Math.min(all.length,from+16);if(from)root.append(node('div','subhelp',`↑ ${from} pași anteriori`));for(let i=from;i<to;i++){const e=all[i];const b=node('button','event'+(i===position?' active':''));b.type='button';b.title=e.message;b.append(node('span','event-id',String(i+1).padStart(3,'0')));b.append(node('span','event-kind',labels[e.kind]||e.kind));b.append(node('span','event-desc',e.message));b.onclick=()=>{stop();go(i);};root.append(b);}if(to<all.length)root.append(node('div','subhelp',`↓ încă ${all.length-to} pași`));}
+function render(){if(!result?.events?.length){controls();return;}const ev=result.events[position],n=result.events.length,done=position===n-1,st=snapshot(ev),kind=ev.kind,clauses=learnedAt(position);$('slide-step').textContent=`Pasul ${position+1} / ${n}`;$('slide-title').textContent=result.mode==='CNF'?'CDCL':result.mode==='SMT'?'DPLL(T) / CDCL(T)':'DPLL(T)';$('phase').textContent='• '+(labels[kind]||kind)+' · '+(ev.source==='theory'?'Solver de teorie LIA / DT':ev.source==='cdcl'?'Solver boolean CDCL':'Coordonator SMT');$('current-action').textContent=ev.message;$('current-action').className='current-action'+(['conflict','theory_conflict','unsat'].includes(kind)?' conflict':['learn','theory_lemma'].includes(kind)?' lemma':'');$('step-explanation').textContent=kind==='theory_lemma'?lemmaProof(ev.clause):kind==='learn'?'Clauza a fost învățată de CDCL prin analiza conflictului și va fi urmărită în formula extinsă.':kind==='theory_conflict'?'Interpretarea booleană este imposibilă în teoria numerelor întregi. Urmează extragerea nucleului de conflict.':kind==='backjump'?'Se revine la un nivel de decizie anterior fără a elimina clauzele învățate.':kind==='theory_check'?'Se verifică dacă există valori întregi care realizează toate literalele adevărate din context.':'Colorarea arată valoarea fiecărui literal în contextul curent (verde = adevărat, portocaliu = fals).';$('slide-type').textContent=`${labels[kind]||kind} · iter. ${ev.iteration||1} · nivel ${ev.level||0}`;$('slide-source').textContent='CDCL + verificare LIA/DT · execuție Rust';$('m-step').textContent=`${position+1} / ${n}`;$('m-decision').textContent=ev.decisions??0;$('m-conflict').textContent=ev.conflicts??0;$('m-iteration').textContent=ev.iteration??1;const shownStatus=manualMode?(manualData?.base?.status==='UNSAT'?'UNSAT':manualData?.base?.status==='SAT'?'SAT':'EXPLORARE'):result.status;$('status').textContent=(manualMode&&shownStatus==='EXPLORARE')?'MANUAL':(done?shownStatus:'ÎN EXECUȚIE');$('status').className='status'+(done?' '+shownStatus.toLowerCase():'');$('result-message').textContent=done?(shownStatus==='SAT'?'SAT · contextul este complet și fezabil':shownStatus==='UNSAT'?'UNSAT · conflict la nivelul 0':shownStatus==='EXPLORARE'?'Alege o valoare pentru o variabilă sau învață o lemă.':'UNKNOWN · limita atinsă'):'';$('result-message').className='result-message '+(done?result.status.toLowerCase():'');$('model').textContent=done&&!manualMode&&result.status==='SAT'?'Model: '+Object.entries({...result.model,...result.atoms}).map(([k,v])=>`${k}=${v}`).join(' · '):'';
+ renderFormula(ev,st);renderContext(ev);renderLearned();renderTimeline();if(manualMode)renderManualChoices();const history=result.events.slice(Math.max(0,position-4),position+1);$('recent').replaceChildren(...history.map(e=>node('li','',`${labels[e.kind]||e.kind}: ${e.message}`)));$('active-clause').textContent=ev.clause?.length?formatClause(ev.clause):'—';$('clause-explain').textContent=ev.clause?.length?'Clauza este evidențiată în formula de sus.':'Pasul nu are o clauză activă.';$('learning-proof').textContent=kind==='theory_lemma'?lemmaProof(ev.clause):kind==='learn'?'Clauză implicată logic de formula booleană; obținută prin rezoluții First-UIP.':'';controls();}
+function go(p){if(!result?.events?.length)return;position=Math.max(0,Math.min(result.events.length-1,p));render();if(timer&&position===result.events.length-1)stop();}
+function play(){if(timer){stop();return;}if(!result?.events?.length)return;if(position===result.events.length-1)go(0);$('play').textContent='Ⅱ Pauză';timer=setInterval(()=>{if(position>=result.events.length-1){stop();return;}go(position+1);},Number($('speed').value));}
+$('first').onclick=()=>{stop();go(0);};$('prev').onclick=()=>{stop();go(position-1);};$('next').onclick=()=>{stop();go(position+1);};$('last').onclick=()=>{stop();go(result.events.length-1);};$('play').onclick=play;$('scrub').oninput=()=>{stop();go(Number($('scrub').value));};$('speed').onchange=()=>{if(timer){stop();play();}};$('focus').onclick=()=>{document.body.classList.toggle('fullscreen');$('focus').textContent=document.body.classList.contains('fullscreen')?'⊟ Editor':'⛶ Prezentare';};
+$('upload').onclick=()=>$('file').click();$('file').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{$('source').value=await f.text();document.querySelectorAll('.example').forEach(b=>b.classList.remove('selected'));invalidate();}catch(err){$('error').textContent=String(err);}e.target.value='';};$('clear').onclick=()=>{$('source').value='';document.querySelectorAll('.example').forEach(b=>b.classList.remove('selected'));invalidate();};$('source').addEventListener('input',()=>{if(result)invalidate();});
+function learnedLines(){const items=learnedAt(position);return items.map(item=>result.mode==='CNF'?item.clause.join(' ')+' 0':'clause '+item.clause.map(l=>(l<0?'!':'')+(result.definitions[Math.abs(l)-1]?.name||('x'+Math.abs(l)))).join(' '));}
+function appendLearned(){const lines=learnedLines();if(!lines.length)return;if(result.mode==='CNF'){const source=$('source').value;const textLines=source.split(/\r?\n/);const i=textLines.findIndex(x=>/^\s*p\s+cnf\s+\d+\s+\d+\s*$/.test(x));if(i<0){$('error').textContent='Nu am găsit header p cnf.';return;}const parts=textLines[i].trim().split(/\s+/);parts[3]=String(Number(parts[3])+lines.length);textLines[i]=parts.join(' ');$('source').value=textLines.join('\n').trimEnd()+'\n'+lines.join('\n')+'\n';}else{$('source').value=$('source').value.trimEnd()+'\n\n# Clauze invatate si justificate de solver\n'+lines.join('\n')+'\n';}document.querySelectorAll('.example').forEach(b=>b.classList.remove('selected'));invalidate();$('error').textContent='Clauzele au fost adăugate în editor. Apasă Pregătește execuția pentru a rula formula extinsă.';}
+$('add-lemmas').onclick=appendLearned;$('copy-lemmas').onclick=async()=>{const text=learnedLines().join('\n');try{await navigator.clipboard.writeText(text);$('copy-lemmas').textContent='✓ Copiate';setTimeout(()=>$('copy-lemmas').textContent='Copiază clauzele învățate',1500);}catch{$('error').textContent='Copiere indisponibilă; folosește Adaugă clauzele în editor.';}};
+async function prepare(){manualMode=false;manualPending=null;$('manual-panel').hidden=true;const id=++requestId;stop();result=null;controls();$('error').textContent='';$('status').textContent='SE REZOLVĂ';$('current-action').textContent='Solverul Rust execută algoritmul și înregistrează evenimentele reale.';const b=$('run');b.disabled=true;b.textContent='Se calculează…';try{const reply=await fetch('/api/solve',{method:'POST',headers:{'Content-Type':'text/plain; charset=utf-8'},body:$('source').value});const data=await reply.json();if(id!==requestId)return;if(!reply.ok)throw Error(data.error||'Eroare la rezolvare');result=data;position=0;$('warning').hidden=!data.truncated;$('warning').textContent=data.truncated?'Istoricul a fost limitat la 20.000 de pași; pe probleme mai mici se înregistrează toate etapele.':'';render();}catch(err){if(id!==requestId)return;$('error').textContent=String(err.message||err);$('status').textContent='EROARE';$('current-action').textContent='Verifică sintaxa formulei sau vezi eroarea din editor.';}finally{if(id===requestId){b.disabled=false;b.textContent='▶ Pregătește execuția';}}}
+$('run').onclick=prepare;document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();prepare();return;}if(['TEXTAREA','INPUT','SELECT'].includes(document.activeElement?.tagName)||e.altKey||e.ctrlKey||e.metaKey)return;if(e.key==='ArrowRight'){e.preventDefault();stop();go(position+1);}if(e.key==='ArrowLeft'){e.preventDefault();stop();go(position-1);}});
+
+
+// --------------------------------------------------------------------------
+// USER-GUIDED DPLL(T). Every requested decision and theory lemma is verified
+// by the Rust backend. The JS is only presentation and a replayable log.
+// --------------------------------------------------------------------------
+function manualEvent(kind,message,trail,levels,clause=[]){
+  return {kind,source:kind==='theory_lemma'||kind==='theory_conflict'?'theory':'manual',message,
+    iteration:1,level:Math.max(0,...levels),trail:[...trail],levels:[...levels],clause:[...clause],
+    decisions:manualChoices.length,conflicts:manualLog.filter(e=>e.kind==='theory_conflict'||e.kind==='conflict').length};
+}
+function manualPush(kind,message,trail,levels,clause=[]){
+  const entry=manualEvent(kind,message,trail,levels,clause);manualLog.push(entry);
+  result.events=manualLog;position=manualLog.length-1;render();
+}
+function addManualUpdates(state,kind='propagation'){
+  let before=manualLog.at(-1)?.trail||[];
+  let beforeLevels=manualLog.at(-1)?.levels||[];
+  // Whenever learning causes a backjump, reset to level 0 explicitly.
+  if(before.some(l=>!state.trail.includes(l))){
+    before=[];beforeLevels=[];
+    manualPush('backjump','Retrag deciziile din ramura anterioară. Păstrez lemele deja dovedite.',[],[]);
+  }
+  const seen=new Set(before),trail=[...before],levels=[...beforeLevels];
+  for(let i=0;i<state.trail.length;i++){
+    const lit=state.trail[i];if(seen.has(lit))continue;
+    seen.add(lit);trail.push(lit);levels.push(state.levels[i]||0);
+    const reason=state.propagated?.find(p=>p.literal===lit);
+    const name=(lit<0?'¬':'')+(result.definitions[Math.abs(lit)-1]?.name||('x'+Math.abs(lit)));
+    const k=reason?'propagation':kind;
+    const detail=reason?`Unit propagation: ${name} este forțat de ${formatClause(reason.clause,false)}`:
+      `Atribuire aleasă: ${name}`;
+    manualPush(k,detail,trail,levels,reason?.clause||[]);
+  }
+}
+function manualHeaders(candidate=null){
+  const headers={'Content-Type':'text/plain; charset=utf-8',
+    'X-Manual-Decisions':manualChoices.join(','),
+    'X-Manual-Lemmas':manualLemmas.map(c=>c.join(',')).join(';')};
+  if(candidate!==null)headers['X-Manual-Candidate']=String(candidate);
+  return headers;
+}
+async function manualFetch(candidate=null){
+  const res=await fetch('/api/manual',{method:'POST',headers:manualHeaders(candidate),body:$('source').value});
+  const data=await res.json();if(!res.ok)throw Error(data.error||'Eroare la verificarea deciziei');return data;
+}
+function manualError(e){$('error').textContent='Verificare manuală: '+String(e?.message||e);}
+function renderManualChoices(){
+  if(!manualMode||!manualData)return;
+  const root=$('manual-choices');root.replaceChildren();
+  const ctx=new Map(manualData.base.trail.map(l=>[Math.abs(l),l>0]));
+  const options=new Map(manualData.options.map(o=>[o.literal,o]));
+  for(let i=0;i<result.definitions.length;i++){
+    const atom=result.definitions[i],id=i+1,card=node('div','manual-choice');
+    card.append(node('h4','',atom.name),node('span','expr',atom.expression));
+    if(ctx.has(id)){
+      card.append(node('div','manual-fixed',`${atom.name} = ${ctx.get(id)?'TRUE':'FALSE'} · propagat/decis`));
+    }else{
+      const line=node('div','manual-opts');
+      for(const lit of [id,-id]){
+        const o=options.get(lit);const good=o&&['OK','SAT'].includes(o.status);
+        const bad=o&&['CONFLICT','UNSAT'].includes(o.status);
+        const state=good?'good':bad?'bad':'unknown';
+        const btn=node('button','pick '+state,(lit>0?'TRUE':'FALSE')+' '+(good?'✓':bad?'✕':'?'));
+        btn.type='button';btn.disabled=manualBusy||!o||manualData.base.status!=='OK';
+        btn.title=o?.reason||'Verificarea nu a putut determina fezabilitatea în timp util';
+        btn.setAttribute('aria-label',`Alege ${atom.name} = ${lit>0?'adevărat':'fals'}; ${state==='bad'?'conflict':state==='good'?'compatibil':'necunoscut'}`);
+        btn.onclick=()=>manualPick(lit);line.append(btn);
+      }
+      card.append(line);
+    }
+    root.append(card);
+  }
+  const latest=manualData.base.status;
+  if(latest==='UNSAT')root.append(node('div','manual-feedback bad','Conflict la nivelul 0: formula este UNSAT.'));
+  if(latest==='SAT')root.append(node('div','manual-feedback good','Context complet: SAT.'));
+  $('manual-learn').hidden=!manualPending;
+  $('manual-learn').textContent=manualPending?'+ Învață '+formatClause(manualPending,false):'+ Învață lema';
+}
+async function manualBegin(){
+  const id=++requestId;stop();manualMode=true;manualBusy=true;
+  manualChoices=[];manualLemmas=[];manualPending=null;manualLog=[];manualData=null;
+  $('error').textContent='';$('manual-panel').hidden=false;
+  const b=$('manual-run');b.disabled=true;b.textContent='Verific contextul…';
+  try{
+    const data=await manualFetch();if(id!==requestId)return;
+    result={mode:'SMT',status:'EXPLORARE',definitions:data.definitions,clauses:data.clauses,
+      model:{},atoms:{},events:[]};
+    manualData=data;
+    manualPush('manual_start','Pornesc explorarea cu atomii declarați: '+data.definitions.map(x=>x.name).join(', '),[],[]);
+    addManualUpdates(data.base);
+    if(data.base.status==='UNSAT'){if(data.base.source==='theory'&&data.base.lemma?.length){manualPending=data.base.lemma;manualPush('theory_conflict',data.base.message,data.base.trail,data.base.levels,data.base.clause);}manualPush('unsat',data.base.message,data.base.trail,data.base.levels,data.base.clause);}
+    $('manual-feedback').textContent='Alege o valoare verde sau roșie: Rust verifică efectiv fiecare opțiune. Roșu = ramură imposibilă în context.';
+    $('manual-feedback').className='manual-feedback';
+    position=0;render();
+  }catch(e){if(id!==requestId)return;manualError(e);manualMode=false;$('manual-panel').hidden=true;}
+  finally{if(id===requestId){manualBusy=false;b.disabled=false;b.textContent='◉ Eu aleg deciziile (verde / roșu)';if(result)render();}}
+}
+async function manualPick(lit){
+  const newlyFrom=manualLog.length;
+  if(manualBusy||!manualMode||!manualData)return;
+  manualBusy=true;manualPending=null;renderManualChoices();
+  try{
+    const data=await manualFetch(lit);
+    const outcome=data.attempt;
+    if(outcome.status==='CONFLICT'||outcome.status==='UNSAT'){
+      // The attempted decision is DISPLAYED, but NOT committed.
+      const name=(lit<0?'¬':'')+result.definitions[Math.abs(lit)-1].name;
+      manualPush('manual_reject',`Încerc ${name} (decizie respinsă)`,outcome.trail,outcome.levels);
+      manualPush(outcome.source==='theory'?'theory_conflict':'conflict',outcome.message,outcome.trail,outcome.levels,outcome.clause);
+      manualPending=outcome.source==='theory'&&outcome.lemma.length?outcome.lemma:null;
+      $('manual-feedback').textContent='✕ '+outcome.message+' Ramura NU a fost acceptată.';
+      $('manual-feedback').className='manual-feedback bad';
+    }else if(outcome.status==='UNKNOWN'){
+      $('manual-feedback').textContent='? '+outcome.message;
+      $('manual-feedback').className='manual-feedback';
+    }else{
+      manualChoices.push(lit);
+      addManualUpdates(outcome,'decision');
+      manualData=await manualFetch();
+      if(outcome.status==='SAT')manualPush('sat',outcome.message,outcome.trail,outcome.levels);
+      $('manual-feedback').textContent='✓ '+outcome.message;
+      $('manual-feedback').className='manual-feedback good';
+    }
+  }catch(e){manualError(e)}
+  finally{manualBusy=false;if(manualLog.length>newlyFrom)position=newlyFrom;renderManualChoices();if(result)render();}
+}
+async function manualLearn(){
+  const newlyFrom=manualLog.length;
+  if(manualBusy||!manualPending)return;
+  manualBusy=true;
+  const lemma=[...manualPending],oldChoices=[...manualChoices];
+  manualLemmas.push(lemma);manualChoices=[];
+  try{
+    // Backend FIRST validates the lemma as a theorem of integer arithmetic.
+    // Only after success do we show it as learned in the timeline.
+    const data=await manualFetch();
+    manualPending=null;
+    manualPush('theory_lemma','Lemă verificată: '+formatClause(lemma,false),manualLog.at(-1)?.trail||[],manualLog.at(-1)?.levels||[],lemma);
+    manualPush('backjump','Backjump la nivelul 0 (explorare manuală); păstrez lema învățată.',[],[]);
+    manualData=data;addManualUpdates(data.base);
+    if(data.base.status==='UNSAT'){
+      if(data.base.source==='theory'&&data.base.lemma?.length){
+        manualPending=data.base.lemma;
+        manualPush('theory_conflict',data.base.message,data.base.trail,data.base.levels,data.base.clause);
+      }
+      manualPush('unsat','Conflict la nivelul 0. Formula este UNSAT.',data.base.trail,data.base.levels,data.base.clause);
+    }
+    $('manual-feedback').textContent='Lema '+formatClause(lemma,false)+' a fost validată de Rust și aplicată formulei.';
+    $('manual-feedback').className='manual-feedback good';
+  }catch(e){
+    manualLemmas.pop();manualChoices=oldChoices;manualPending=lemma;
+    manualError(e);
+  }finally{
+    manualBusy=false;if(manualLog.length>newlyFrom)position=newlyFrom;
+    renderManualChoices();if(result)render();
+  }
+}
+$('manual-run').onclick=manualBegin;
+$('manual-learn').onclick=manualLearn;
+$('manual-reset').onclick=manualBegin;
+
+choose(0);
+</script>
+</body>
+</html>
